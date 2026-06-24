@@ -25,6 +25,7 @@ pub fn main() {
     router.handle_request
     |> wisp_mist.handler(secret_key_base)
     |> mist.new
+    |> mist.bind("0.0.0.0")
     |> mist.port(port)
     |> mist.start
 
