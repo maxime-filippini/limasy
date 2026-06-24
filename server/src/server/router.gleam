@@ -7,8 +7,14 @@ pub fn handle_request(req: Request) -> Response {
   // Apply the middleware stack for this request/response.
   use _req <- web.middleware(req)
 
+  // Strip the /limasy prefix if present (for Coolify path-based routing)
+  let path = case wisp.path_segments(req) {
+    ["limasy", ..rest] -> rest
+    other -> other
+  }
+
   // Route based on the path
-  case wisp.path_segments(req) {
+  case path {
     // Health check endpoint for Docker/Coolify
     ["health"] -> wisp.ok()
 
