@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Development files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Build artifacts
+server/build/
+server/target/
+
+# Gleam cache
+server/.gleam/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker files (not needed inside the image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# macOS
+.DS_Store
+
+# SQLite databases (use volumes instead)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Test files
+server/test/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Temporary files
+.todo
+tmp/
+temp/
