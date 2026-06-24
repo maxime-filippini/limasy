@@ -3,6 +3,9 @@ ARG GLEAM_VERSION=v1.14.0
 # Build stage - compile the application
 FROM ghcr.io/gleam-lang/gleam:${GLEAM_VERSION}-erlang-alpine AS builder
 
+# Install build tools needed for compiling native dependencies (esqlite)
+RUN apk add --no-cache gcc g++ make musl-dev
+
 COPY ./server /build/server
 RUN cd /build/server && gleam deps download
 RUN cd /build/server && gleam export erlang-shipment
