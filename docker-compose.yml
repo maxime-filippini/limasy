@@ -13,7 +13,7 @@ services:
       - sqlite_data:/app/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:1234/health"]
       interval: 30s
       timeout: 10s
       retries: 3
