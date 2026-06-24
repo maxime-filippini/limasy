@@ -23,11 +23,10 @@ RUN mkdir -p /app/data && chmod 755 /app/data
 
 # Set environment variables
 ENV HOST=0.0.0.0
-ENV PORT=8000
+ENV PORT=1234
 ENV DATABASE_PATH=/app/data/database.db
 
-# Expose the port the server will run on
-EXPOSE $PORT
+EXPOSE 1234
 
 # Run the server
 CMD ["./start.sh", "run"]
