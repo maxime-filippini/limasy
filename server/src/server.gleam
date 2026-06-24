@@ -1,7 +1,10 @@
 import envoy
 import gleam/erlang/process
 import gleam/int
+import gleam/io
+import logging
 import mist
+import server/database
 import server/router
 import wisp
 import wisp/wisp_mist
@@ -9,9 +12,28 @@ import wisp/wisp_mist
 pub fn main() {
   wisp.configure_logger()
 
+  // Initialize database (will create and setup if it doesn't exist)
+  let _db_conn = case database.initialize() {
+    Ok(conn) -> {
+      logging.log(logging.Info, "Database initialized successfully")
+      conn
+    }
+    Error(database.ConnectionError(msg)) -> {
+      logging.log(logging.Info, "Database connection error: " <> msg)
+      panic as "Failed to connect to database"
+    }
+    Error(database.SetupError(msg)) -> {
+      logging.log(logging.Info, "Database setup error: " <> msg)
+      panic as "Failed to setup database"
+    }
+    Error(database.EnvironmentError(msg)) -> {
+      logging.log(logging.Info, "Environment error: " <> msg)
+      panic as "Database environment configuration error"
+    }
+  }
+
   let secret_key_base = wisp.random_string(64)
 
-  // Read PORT from environment variable, default to 8000
   let port = case envoy.get("PORT") {
     Ok(port_str) ->
       case int.parse(port_str) {

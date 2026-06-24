@@ -20,7 +20,5 @@ services:
       start_period: 40s
 
 volumes:
-  # Named volume for SQLite database persistence
-  # In Coolify, this will be automatically managed and persisted across deploys
   sqlite_data:
     driver: local
