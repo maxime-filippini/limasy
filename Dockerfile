@@ -6,9 +6,15 @@ FROM ghcr.io/gleam-lang/gleam:${GLEAM_VERSION}-erlang-alpine AS builder
 # Install build tools needed for compiling native dependencies (esqlite)
 RUN apk add --no-cache gcc g++ make musl-dev
 
-COPY ./server /build/server
-RUN cd /build/server && gleam deps download
-RUN cd /build/server && gleam export erlang-shipment
+WORKDIR /build/server
+
+# Copy only dependency manifests first to cache dependency downloads
+COPY ./server/gleam.toml ./server/manifest.toml ./
+RUN gleam deps download
+
+# Now copy the rest of the source code
+COPY ./server .
+RUN gleam export erlang-shipment
 
 # Runtime stage - slim image with only what's needed to run
 FROM ghcr.io/gleam-lang/gleam:${GLEAM_VERSION}-erlang-alpine
