@@ -33,6 +33,10 @@ services:
       server:
         condition: service_started
     restart: unless-stopped
+    labels:
+      - caddy_1=http://vps.follow-scylla.ts.net
+      - caddy_1.handle=/_app*
+      - 'caddy_1.handle.0_reverse_proxy={{upstreams 3000}}'
 
 volumes:
   sqlite_data:
