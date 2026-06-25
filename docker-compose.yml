@@ -9,8 +9,6 @@ services:
       - HOST=0.0.0.0
       - PORT=1234
       - DATABASE_PATH=/app/data/database.db
-    volumes:
-      - sqlite_data:/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:1234/health"]
@@ -37,7 +35,3 @@ services:
       - caddy_1=http://vps.follow-scylla.ts.net
       - caddy_1.handle=/_app*
       - 'caddy_1.handle.0_reverse_proxy={{upstreams 3000}}'
-
-volumes:
-  sqlite_data:
-    driver: local
