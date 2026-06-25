@@ -4,7 +4,7 @@ RUN corepack enable
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN npm_config_minimum_release_age=0 pnpm install --frozen-lockfile
 
 COPY . .
 RUN pnpm build
