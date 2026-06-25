@@ -1,6 +1,9 @@
 import envoy
+import gleam/bool
 import gleam/io
+import gleam/list
 import gleam/result
+import logging
 import simplifile
 import sqlight
 
@@ -8,13 +11,14 @@ pub type DatabaseError {
   ConnectionError(String)
   SetupError(String)
   EnvironmentError(String)
+  SetupScriptNotFound(String)
+  FileError(String)
 }
 
-/// Initialize the database connection. If the database doesn't exist,
-/// it will be created and the setup script will be run.
-pub fn initialize() -> Result(sqlight.Connection, DatabaseError) {
-  // Get database path from environment variable
-  let db_path = case envoy.get("DATABASE_PATH") {
+pub const default_database_path = "./data/database.db"
+
+pub fn get_database_path() {
+  case envoy.get("DATABASE_PATH") {
     Ok(path) -> path
     Error(_) -> {
       io.println(
@@ -23,10 +27,24 @@ pub fn initialize() -> Result(sqlight.Connection, DatabaseError) {
       "./data/database.db"
     }
   }
+}
 
-  io.println("Checking database at: " <> db_path)
+pub fn initialize(
+  path_setup_scripts: List(String),
+) -> Result(Nil, DatabaseError) {
+  let db_path = case envoy.get("DATABASE_PATH") {
+    Ok(path) -> path
+    Error(_) -> {
+      logging.log(
+        logging.Warning,
+        "WARNING: DATABASE_PATH not set, using default: ./data/database.db",
+      )
+      default_database_path
+    }
+  }
 
-  // Check if database exists
+  logging.log(logging.Info, "Checking database at: " <> db_path)
+
   let db_exists = case simplifile.is_file(db_path) {
     Ok(True) -> True
     Ok(False) -> False
@@ -35,78 +53,54 @@ pub fn initialize() -> Result(sqlight.Connection, DatabaseError) {
 
   case db_exists {
     False -> {
-      io.println("Database not found. Creating new database and running setup...")
-      create_and_setup(db_path)
+      logging.log(
+        logging.Info,
+        "Database not found. Creating new database and running setup...",
+      )
+
+      use conn <- sqlight.with_connection(db_path)
+      use _ <- result.try(run_setup(conn, path_setup_scripts))
+      io.println("Database setup completed successfully")
+      Ok(Nil)
     }
     True -> {
-      io.println("Database found. Connecting...")
-      connect(db_path)
+      logging.log(logging.Info, "Database found.")
+      Ok(Nil)
     }
   }
 }
 
-/// Connect to an existing database
-fn connect(db_path: String) -> Result(sqlight.Connection, DatabaseError) {
-  case sqlight.open(db_path) {
-    Ok(conn) -> {
-      io.println("Successfully connected to database")
-      Ok(conn)
-    }
-    Error(_err) -> {
-      Error(ConnectionError("Failed to connect to database at " <> db_path))
-    }
-  }
-}
+fn load_script_and_exec(
+  path: String,
+  conn: sqlight.Connection,
+) -> Result(Nil, DatabaseError) {
+  use is_file <- result.try(
+    simplifile.is_file(path) |> result.map_error(fn(_) { FileError(path) }),
+  )
+  use <- bool.guard(!is_file, Error(SetupScriptNotFound(path)))
 
-/// Create a new database and run the setup script
-fn create_and_setup(db_path: String) -> Result(sqlight.Connection, DatabaseError) {
-  // Open connection (this will create the database file)
-  use conn <- result.try(case sqlight.open(db_path) {
-    Ok(conn) -> Ok(conn)
-    Error(_err) ->
-      Error(ConnectionError("Failed to create database at " <> db_path))
-  })
+  use sql <- result.try(
+    simplifile.read(path) |> result.map_error(fn(_) { FileError(path) }),
+  )
 
-  // Run setup script
-  use _ <- result.try(run_setup(conn))
-
-  io.println("Database setup completed successfully")
-  Ok(conn)
-}
-
-/// Run the database setup script to create tables and initial data
-fn run_setup(conn: sqlight.Connection) -> Result(Nil, DatabaseError) {
-  io.println("Running database setup script...")
-
-  // Example schema - you can customize this based on your needs
-  let setup_sql =
-    "
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS sessions (
-      id TEXT PRIMARY KEY,
-      user_id INTEGER NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      expires_at TIMESTAMP NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES users(id)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
-    CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
-  "
-
-  case sqlight.exec(setup_sql, conn) {
+  case sqlight.exec(sql, conn) {
     Ok(_) -> {
-      io.println("Database schema created successfully")
+      logging.log(logging.Info, "Executed setup script successfully: " <> path)
       Ok(Nil)
     }
     Error(_err) -> {
-      Error(SetupError("Failed to run setup script - SQL execution error"))
+      Error(SetupError("Failed to run setup script: " <> path))
     }
   }
+}
+
+fn run_setup(
+  conn: sqlight.Connection,
+  path_setup_scripts: List(String),
+) -> Result(Nil, DatabaseError) {
+  io.println("Running database setup script...")
+
+  list.map(path_setup_scripts, load_script_and_exec(_, conn))
+  |> result.all
+  |> result.map(fn(_) { Nil })
 }
