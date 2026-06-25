@@ -1,15 +1,17 @@
 FROM node:22-alpine AS builder
 
-RUN corepack enable
+ENV CI=true
+RUN apk upgrade --no-cache && corepack enable
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN npm_config_minimum_release_age=0 pnpm install --frozen-lockfile
+RUN pnpm config set minimum-release-age 0 --location global && pnpm install --frozen-lockfile
 
 COPY . .
 RUN pnpm build
 
 FROM node:22-alpine
+RUN apk upgrade --no-cache
 WORKDIR /app
 COPY --from=builder /app/build ./build
 
