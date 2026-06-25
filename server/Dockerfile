@@ -9,11 +9,11 @@ RUN apk add --no-cache gcc g++ make musl-dev
 WORKDIR /build/server
 
 # Copy only dependency manifests first to cache dependency downloads
-COPY ./server/gleam.toml ./server/manifest.toml ./
+COPY ./gleam.toml ./manifest.toml ./
 RUN gleam deps download
 
 # Now copy the rest of the source code
-COPY ./server .
+COPY . .
 RUN gleam export erlang-shipment
 
 # Runtime stage - slim image with only what's needed to run
