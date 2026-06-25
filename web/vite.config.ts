@@ -16,6 +16,9 @@ export default defineConfig({
 			adapter: adapter(),
 			experimental: {
 				remoteFunctions: true
+			},
+			paths: {
+				base: process.env.BASE_PATH ?? ''
 			}
 		})
 	]
