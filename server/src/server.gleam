@@ -1,9 +1,11 @@
+import argus
 import envoy
 import gleam/erlang/process
 import gleam/int
 import logging
 import mist
 import server/database
+import server/dotenv
 import server/router
 import server/web
 import wisp
@@ -16,13 +18,16 @@ const path_setup_scripts = ["./src/setup_db.sql"]
 pub fn main() {
   wisp.configure_logger()
 
+  let assert Ok(_) = dotenv.load(".env")
+
   let assert Ok(_) = setup_database()
-  let secret_key_base = wisp.random_string(64)
+  let assert Ok(secret_key_base) = envoy.get("SECRET_KEY_BASE")
   let port = get_port()
 
   let assert Ok(db_path) = envoy.get("DATABASE_PATH")
+  let assert Ok(hashed_pw) = envoy.get("PASSWORD")
 
-  let ctx = web.Context(db_path)
+  let ctx = web.Context(db_path, hashed_pw:)
 
   let assert Ok(_) =
     router.handle_request(_, ctx)

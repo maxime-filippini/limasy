@@ -21,7 +21,7 @@ pub fn db_path(s: String) {
 }
 
 pub type Context {
-  Context(db_path: String)
+  Context(db_path: String, hashed_pw: String)
 }
 
 pub fn middleware(
@@ -34,4 +34,17 @@ pub fn middleware(
   use req <- wisp.handle_head(req)
   use req <- wisp.csrf_known_header_protection(req)
   handle_request(req)
+}
+
+pub fn require_cookie(
+  req: wisp.Request,
+  name: String,
+  security: wisp.Security,
+  if_error: fn() -> wisp.Response,
+  next: fn(String) -> wisp.Response,
+) -> wisp.Response {
+  case wisp.get_cookie(req, name, security) {
+    Ok(v) -> next(v)
+    Error(_) -> if_error()
+  }
 }

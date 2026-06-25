@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      valibot:
+        specifier: ^1.4.1
+        version: 1.4.1(typescript@6.0.3)
     devDependencies:
       '@sveltejs/adapter-node':
         specifier: ^5.5.4
@@ -903,6 +907,14 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  valibot@1.4.1:
+    resolution: {integrity: sha512-klCmFTz2jeDluy9RwX+F884TCiogtdBJ/YaxSx1EOBYXa3NXNWj8kR1jjN8rzluwojJVWWaHJ4r1U5LfICnM3g==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   vite@8.1.0:
     resolution: {integrity: sha512-BuJcQK/56NQTWDGn4ABea3q4SSBdNPWwNZKTkkUpcMPnLoquSYH8llRtSUIgoL1KSCpHt5eghLShn50mH36y7Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -1606,6 +1618,10 @@ snapshots:
   typescript@6.0.3: {}
 
   util-deprecate@1.0.2: {}
+
+  valibot@1.4.1(typescript@6.0.3):
+    optionalDependencies:
+      typescript: 6.0.3
 
   vite@8.1.0(jiti@2.7.0):
     dependencies:
