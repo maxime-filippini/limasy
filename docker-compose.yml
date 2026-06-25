@@ -27,7 +27,6 @@ services:
       - PORT=3000
       - HOST=0.0.0.0
       - BACKEND_URL=http://server:1234
-      - BASE_PATH=/limasy
     ports:
       - "3000:3000"
     depends_on:

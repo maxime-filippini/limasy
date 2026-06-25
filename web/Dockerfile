@@ -8,8 +8,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm config set minimum-release-age 0 --location global && pnpm install --frozen-lockfile
 
 COPY . .
-ARG BASE_PATH=/limasy
-ENV BASE_PATH=$BASE_PATH
 RUN pnpm build
 
 FROM node:22-alpine
