@@ -15,10 +15,29 @@ const default_port = 1234
 
 const path_setup_scripts = ["./src/setup_db.sql"]
 
+pub type Mode {
+  Local
+  Dev
+  Prod
+}
+
 pub fn main() {
   wisp.configure_logger()
 
-  let assert Ok(_) = dotenv.load(".env")
+  let assert Ok(_) = case envoy.get("LIMASY_MODE") {
+    Ok(v) ->
+      case v {
+        "local" -> {
+          let assert Ok(_) = dotenv.load(".env")
+          Ok(Local)
+        }
+
+        "dev" -> Ok(Dev)
+        "prod" -> Ok(Prod)
+        _ -> Error(Nil)
+      }
+    Error(_) -> Error(Nil)
+  }
 
   let assert Ok(_) = setup_database()
   let assert Ok(secret_key_base) = envoy.get("SECRET_KEY_BASE")
