@@ -19,6 +19,21 @@ services:
       retries: 3
       start_period: 40s
 
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - BACKEND_URL=http://server:1234
+    ports:
+      - "3000:3000"
+    depends_on:
+      server:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   sqlite_data:
     driver: local

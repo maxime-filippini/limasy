@@ -9,6 +9,8 @@ import server/router
 import wisp
 import wisp/wisp_mist
 
+const default_port = 1234
+
 pub fn main() {
   wisp.configure_logger()
 
@@ -38,9 +40,9 @@ pub fn main() {
     Ok(port_str) ->
       case int.parse(port_str) {
         Ok(p) -> p
-        Error(_) -> 8000
+        Error(_) -> default_port
       }
-    Error(_) -> 8000
+    Error(_) -> default_port
   }
 
   let assert Ok(_) =

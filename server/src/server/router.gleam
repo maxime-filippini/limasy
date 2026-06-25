@@ -1,3 +1,4 @@
+import gleam/json
 import server/web
 import wisp.{type Request, type Response}
 
@@ -22,6 +23,14 @@ pub fn handle_request(req: Request) -> Response {
     [] -> {
       let body = "<h1>Hello, Joe!</h1>"
       wisp.html_response(body, 200)
+    }
+
+    ["data"] -> {
+      wisp.json_response(
+        json.object([#("data", json.int(420))])
+          |> json.to_string,
+        200,
+      )
     }
 
     // 404 for everything else
