@@ -1,7 +1,10 @@
 import argus
 import gleam/dynamic/decode
+import gleam/erlang/process
 import gleam/http
+import gleam/json
 import server/web
+import sqlight
 import wisp.{type Request, type Response}
 
 pub fn handle_request(req: Request, ctx: web.Context) -> Response {
@@ -35,15 +38,21 @@ pub fn handle_request(req: Request, ctx: web.Context) -> Response {
     http.Post, ["sign-in"] -> {
       use dyna <- wisp.require_json(req)
 
-      case decode.run(dyna, decode.string) {
+      let decoder = {
+        use user <- decode.field("user", decode.string)
+        use password <- decode.field("password", decode.string)
+        decode.success(#(user, password))
+      }
+
+      case decode.run(dyna, decoder) {
         Ok(s) -> {
-          case argus.verify(ctx.hashed_pw, s) {
+          case argus.verify(ctx.hashed_pw, s.1) {
             Ok(True) -> {
               wisp.html_response("OK", 200)
               |> wisp.set_cookie(
                 req,
                 "limasy-auth",
-                s,
+                s.1,
                 wisp.Signed,
                 max_age: 24 * 60 * 60,
               )
@@ -59,22 +68,22 @@ pub fn handle_request(req: Request, ctx: web.Context) -> Response {
       }
     }
 
-    //     ["data"] -> {
-    //       use conn <- sqlight.with_connection(ctx.db_path)
-    //       process.sleep(1000)
-    //       let sql =
-    //         "
-    // SELECT *
-    // FROM users;
-    //   "
-    //       let assert Ok(res) =
-    //         sqlight.query(sql, on: conn, with: [], expecting: { decode.success(25) })
-    //       wisp.json_response(
-    //         json.object([#("query_result", json.array(res, json.int))])
-    //           |> json.to_string,
-    //         200,
-    //       )
-    //     }
+    http.Get, ["data"] -> {
+      use conn <- sqlight.with_connection(ctx.db_path)
+      process.sleep(1000)
+      let sql =
+        "
+    SELECT id
+    FROM x;
+      "
+      let assert Ok(res) =
+        sqlight.query(sql, on: conn, with: [], expecting: { decode.string })
+      wisp.json_response(
+        json.object([#("query_result", json.array(res, json.string))])
+          |> json.to_string,
+        200,
+      )
+    }
     _, _ -> wisp.not_found()
   }
 }
