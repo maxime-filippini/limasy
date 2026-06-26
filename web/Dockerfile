@@ -11,8 +11,10 @@ COPY . .
 RUN pnpm build
 
 FROM node:22-alpine
-RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache && corepack enable
 WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 COPY --from=builder /app/build ./build
 
 EXPOSE 3000
