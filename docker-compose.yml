@@ -23,6 +23,8 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+      args:
+        BASE_PATH: /limasy
     environment:
       - PORT=3000
       - HOST=0.0.0.0

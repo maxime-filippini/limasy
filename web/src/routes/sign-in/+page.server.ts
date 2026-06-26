@@ -26,13 +26,8 @@ export const actions: Actions = {
 			return fail(500, { errors: { form: 'Something went wrong, please try again' } });
 		}
 
-		const setCookieHeader = res.headers.get('set-cookie');
-		if (setCookieHeader) {
-			const eqIdx = setCookieHeader.indexOf('=');
-			const name = setCookieHeader.slice(0, eqIdx).trim();
-			const value = setCookieHeader.slice(eqIdx + 1, setCookieHeader.indexOf(';')).trim();
-			cookies.set(name, value, { path: '/', maxAge: 60 * 60 * 24, httpOnly: true, sameSite: 'lax' });
-		}
+		const { session } = await res.json();
+		cookies.set('limasy-auth', session, { path: '/', maxAge: 60 * 60 * 24, httpOnly: true, sameSite: 'lax' });
 
 		redirect(303, resolve('/'));
 	}
