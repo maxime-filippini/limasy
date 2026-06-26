@@ -33,6 +33,6 @@ export const actions: Actions = {
 			cookies.set(name, value, { path: '/', maxAge: 60 * 60 * 24, httpOnly: true, sameSite: 'lax' });
 		}
 
-		redirect(303, '/');
+		redirect(303, '/limasy');
 	}
 };
