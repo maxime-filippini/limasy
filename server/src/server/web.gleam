@@ -21,7 +21,7 @@ pub fn db_path(s: String) {
 }
 
 pub type Context {
-  Context(db_path: String, hashed_pw: String)
+  Context(db_path: String)
 }
 
 pub fn middleware(
