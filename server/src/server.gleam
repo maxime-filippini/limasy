@@ -38,9 +38,8 @@ pub fn main() {
   let port = get_port()
 
   let assert Ok(db_path) = envoy.get("DATABASE_PATH")
-  let assert Ok(hashed_pw) = envoy.get("PASSWORD")
 
-  let ctx = web.Context(db_path, hashed_pw:)
+  let ctx = web.Context(db_path)
 
   let assert Ok(_) =
     router.handle_request(_, ctx)

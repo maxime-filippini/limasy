@@ -27,18 +27,6 @@ pub fn handle_request(req: Request, ctx: web.Context) -> Response {
       wisp.html_response(body, 200)
     }
 
-    http.Post, ["auth", "check"] -> {
-      use password <- web.require_cookie(req, "limasy-auth", wisp.Signed, fn() {
-        wisp.bad_request("No auth cookie found")
-      })
-
-      case argus.verify(ctx.hashed_pw, password) {
-        Ok(True) -> wisp.html_response("OK", 200)
-        Ok(False) -> wisp.response(401)
-        Error(_) -> wisp.internal_server_error()
-      }
-    }
-
     http.Post, ["sign-in"] -> {
       use dyna <- wisp.require_json(req)
 
@@ -72,7 +60,9 @@ pub fn handle_request(req: Request, ctx: web.Context) -> Response {
         session.get_or_create(conn, user)
       }
 
-      use session <- web.try(maybe_session, fn(_) { wisp.internal_server_error() })
+      use session <- web.try(maybe_session, fn(_) {
+        wisp.internal_server_error()
+      })
 
       wisp.response(200)
       |> wisp.set_cookie(
