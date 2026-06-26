@@ -13,6 +13,9 @@ pub type DatabaseError {
   EnvironmentError(String)
   SetupScriptNotFound(String)
   FileError(String)
+  UnexpectedNumberOfRows(limit: Int, got: Int)
+  QueryError(sqlight.Error)
+  NoRecordFound
 }
 
 pub const default_database_path = "./data/database.db"

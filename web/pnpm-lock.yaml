@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      daisyui:
+        specifier: ^5.5.23
+        version: 5.5.23
       valibot:
         specifier: ^1.4.1
         version: 1.4.1(typescript@6.0.3)
@@ -566,6 +569,9 @@ packages:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
     hasBin: true
+
+  daisyui@5.5.23:
+    resolution: {integrity: sha512-xuheNUSL4T6ZVtWXoioqcNkjoyGX85QTDz4HTw2aBPfqk4fuMjax5HDo8qCmpV6M1YN8bGvfx5BpYCoDeRlt+A==}
 
   deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
@@ -1340,6 +1346,8 @@ snapshots:
   cookie@0.6.0: {}
 
   cssesc@3.0.0: {}
+
+  daisyui@5.5.23: {}
 
   deepmerge@4.3.1: {}
 

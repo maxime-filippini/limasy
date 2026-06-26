@@ -48,3 +48,10 @@ pub fn require_cookie(
     Error(_) -> if_error()
   }
 }
+
+pub fn try(res: Result(a, e), if_error: fn(e) -> b, next: fn(a) -> b) -> b {
+  case res {
+    Ok(v) -> next(v)
+    Error(e) -> if_error(e)
+  }
+}

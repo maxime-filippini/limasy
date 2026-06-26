@@ -30,6 +30,7 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
+		"daisyui": "^5.5.23",
 		"valibot": "^1.4.1"
 	}
 }
