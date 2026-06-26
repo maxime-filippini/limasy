@@ -64,14 +64,11 @@ pub fn handle_request(req: Request, ctx: web.Context) -> Response {
         wisp.internal_server_error()
       })
 
-      wisp.response(200)
-      |> wisp.set_cookie(
-        req,
-        "limasy-auth",
-        uuid.to_string(session.id),
-        wisp.Signed,
-        max_age: 60 * 60 * 24,
-      )
+      let body =
+        json.object([#("session", json.string(uuid.to_string(session.id)))])
+        |> json.to_string
+
+      wisp.json_response(body, 200)
     }
 
     // Protected route

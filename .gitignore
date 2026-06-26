@@ -2,3 +2,4 @@
 .claude
 .todo
 .scratch
+docker-compose.override.yml

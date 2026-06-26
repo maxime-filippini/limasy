@@ -13,6 +13,11 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true,
 				experimental: { async: true }
 			},
+			kit: {
+				paths: {
+					base: process.env.BASE_PATH ?? ''
+				}
+			},
 			adapter: adapter(),
 			experimental: {
 				remoteFunctions: true

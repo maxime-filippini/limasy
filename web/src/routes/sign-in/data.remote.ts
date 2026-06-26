@@ -1,5 +1,6 @@
 import { form, getRequestEvent } from '$app/server';
 import { invalid, redirect } from '@sveltejs/kit';
+import { resolve } from '$app/paths';
 import { env } from '$env/dynamic/private';
 import * as v from 'valibot';
 
@@ -23,15 +24,10 @@ export const signIn = form(
 			invalid('Something went wrong, please try again');
 		}
 
-		const setCookieHeader = res.headers.get('set-cookie');
-		if (setCookieHeader) {
-			const eqIdx = setCookieHeader.indexOf('=');
-			const name = setCookieHeader.slice(0, eqIdx).trim();
-			const value = setCookieHeader.slice(eqIdx + 1, setCookieHeader.indexOf(';')).trim();
-			const { cookies } = getRequestEvent();
-			cookies.set(name, value, { path: '/', maxAge: 60 * 60 * 24, httpOnly: true, sameSite: 'lax' });
-		}
+		const { session } = await res.json();
+		const { cookies } = getRequestEvent();
+		cookies.set('limasy-auth', session, { path: '/', maxAge: 60 * 60 * 24, httpOnly: true, sameSite: 'lax' });
 
-		redirect(303, '/');
+		redirect(303, resolve('/'));
 	}
 );

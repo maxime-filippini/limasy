@@ -1,4 +1,6 @@
 import gleam/bool
+import gleam/http/request
+import gleam/list
 import gleam/order
 import gleam/result
 import gleam/time/timestamp
@@ -27,14 +29,16 @@ pub fn require_user(
     Ok(user) -> next(user)
     Error(UserNotFound) -> wisp.response(404)
     Error(NoAuthCookieFound) -> wisp.response(401)
-    Error(InvalidUuidInCookie) -> wisp.response(500)
+    Error(InvalidUuidInCookie) -> wisp.response(401)
     Error(DatabaseError(_)) -> wisp.response(500)
-    Error(ExpiredSession) -> wisp.response(500)
+    Error(ExpiredSession) -> wisp.response(401)
   }
 }
 
 pub fn get_user(req: wisp.Request, ctx: web.Context) -> Result(user.User, Error) {
-  let maybe_cookie = wisp.get_cookie(req, "limasy-auth", wisp.Signed)
+  let maybe_cookie =
+    request.get_cookies(req)
+    |> list.key_find("limasy-auth")
 
   use cookie <- result.try(
     maybe_cookie |> result.map_error(fn(_) { NoAuthCookieFound }),

@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { resolve } from '$app/paths';
 import { env } from '$env/dynamic/private';
 import type { Actions } from './$types';
 
@@ -33,6 +34,6 @@ export const actions: Actions = {
 			cookies.set(name, value, { path: '/', maxAge: 60 * 60 * 24, httpOnly: true, sameSite: 'lax' });
 		}
 
-		redirect(303, '/limasy');
+		redirect(303, resolve('/'));
 	}
 };
